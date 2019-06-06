@@ -1,10 +1,6 @@
 from lib.graph import Graph
 from lib.exceptions import InvalidTieBreakerException, InvalidBallotException, TooManyBlankBallotsException, TieBreakerNeededException
-
-DEBUG=True
-def debug (msg):
-	if DEBUG:
-		print(msg)
+from lib.util import debug
 
 # Ported from https://github.com/tejoesperanto/vocho-lib/blob/master/src/ranked-pairs.js
 def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = None):
