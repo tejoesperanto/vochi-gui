@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
-from lib.ranked_pairs import RankedPairs
+from lib.stv import STV
 
-ballots = []
-for i in range(60):
-	ballots.append('B>K>M>S')
-for i in range(45):
-	ballots.append('S>K>M>B')
-for i in range(40):
-	ballots.append('M>K>S>B')
-for i in range(35):
-	ballots.append('K>M>B>S')
+ballots = [
+	'ABC',
+	'ABD',
+	'DAB',
+	'CBAD',
+	'CA'
+]
 
-RankedPairs('BKMS', ballots)
+STV(3, 'ABCDE', ballots)
