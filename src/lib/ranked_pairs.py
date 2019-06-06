@@ -245,10 +245,10 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 						pass
 					if (next_pair is None or next_pair['or_i'] > pair['or_i']):
 						new_ordered_tie_breaker_pairs.append(pair['eq_i'])
-					new_ordered_tie_breaker_pairs.sort(reverse=True) # Don't mess up indices when popping
-					for i in new_ordered_tie_breaker_pairs:
-						ordered_entries.append(equal_pairs[i])
-						equal_pairs.pop(i)
+				new_ordered_tie_breaker_pairs.sort(reverse=True) # Don't mess up indices when popping
+				for i in new_ordered_tie_breaker_pairs:
+					ordered_entries.append(equal_pairs[i])
+					equal_pairs.pop(i)
 
 			# There should only be one pair remaining at this point
 			ordered_entries.extend(equal_pairs)
