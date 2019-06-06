@@ -243,7 +243,7 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 						next_pair = loser_pref_indices[i + 1]
 					except IndexError:
 						pass
-					if (next_pair is None or next_pair['or_i'] > pair['or']):
+					if (next_pair is None or next_pair['or_i'] > pair['or_i']):
 						new_ordered_tie_breaker_pairs.append(pair['eq_i'])
 					new_ordered_tie_breaker_pairs.sort(reverse=True) # Don't mess up indices when popping
 					for i in new_ordered_tie_breaker_pairs:
