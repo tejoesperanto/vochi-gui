@@ -33,10 +33,15 @@ def run_election ():
 	ignored_candidates = re.findall(comma_regex, ignored_candidates_input.text())
 	places = places_input.value()
 
-	ballots = re.split(newline_regex, ballots_input.toPlainText().strip())
+	raw_ballots = ballots_input.toPlainText();
+	ballots = re.split(newline_regex, raw_ballots.strip())
 	ballots = map(lambda b: b.strip(), ballots)
 	ballots = filter(lambda b: len(b), ballots)
 	ballots = list(map(lambda b: '' if b == 'blanka' else b, ballots))
+
+	ballots_input.setPlainText('Kaŝita')
+	def unhide_ballots ():
+		ballots_input.setPlainText(raw_ballots)
 
 	results = None
 	try:
@@ -48,7 +53,9 @@ def run_election ():
 		except TieBreakerNeededException as e:
 			tie_breaker_text = 'La egalecrompanto mem enskribu sian balotilon ĉi-sube.\nEkz. A=B>C>D=E\nValidaj kandidatoj:\n%s' % (', '.join(candidates))
 			tie_breaker, ok = QInputDialog.getText(window, 'Necesas egalecrompanto!', tie_breaker_text)
+
 			if not ok:
+				unhide_ballots()
 				return
 			if current_election_type == 'RP':
 				results = RankedPairs(candidates, ballots, ignored_candidates, tie_breaker)
@@ -71,6 +78,7 @@ def run_election ():
 
 		error_modal.setWindowTitle(error_title)
 		error_modal.setText(error_text)
+		error_modal.buttonClicked.connect(unhide_ballots)
 		error_modal.exec_()
 
 	if not results:
@@ -91,6 +99,7 @@ def run_election ():
 	results_modal = QMessageBox()
 	results_modal.setWindowTitle('Rezulto trovita')
 	results_modal.setText(results_text)
+	results_modal.buttonClicked.connect(unhide_ballots)
 	results_modal.exec_()
 
 app = QApplication(['TEJO Voĉo'])
