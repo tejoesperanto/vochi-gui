@@ -6,13 +6,17 @@ QPlainTextEdit, QMessageBox, QInputDialog, QAction)
 from PyQt5 import QtCore
 from collections import OrderedDict
 import re
-import os.path
+import sys
+import os
 
 from lib.ranked_pairs import RankedPairs
 from lib.stv import STV
 from lib.exceptions import InvalidTieBreakerException, InvalidBallotException, TooManyBlankBallotsException, TieBreakerNeededException
 
-own_dir = os.path.abspath(os.path.dirname(__file__))
+try:
+	base_path = sys._MEIPASS
+except Exception:
+	base_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 current_election_type = None
 election_types = OrderedDict(sorted({ 'RP': 'Paroranga metodo', 'STV': 'Unuopa Transdonebla Voĉo' }.items(), key=lambda x: x[0]))
@@ -114,7 +118,7 @@ menu = main_window.menuBar()
 menu_about = menu.addMenu('&Pri Voĉo')
 
 def display_about ():
-	with open(os.path.join(own_dir, '../version.txt')) as f:
+	with open(os.path.join(base_path, 'version.txt')) as f:
 		version = f.read()
 
 	text  =   'TEJO Voĉo estas la eksterreta voĉdonsistemo de TEJO'
@@ -132,7 +136,7 @@ menu_about_about.triggered.connect(display_about)
 menu_about.addAction(menu_about_about)
 
 def display_help ():
-	with open(os.path.join(own_dir, '../help.html')) as f:
+	with open(os.path.join(base_path, 'help.html')) as f:
 		help_text = f.read()
 
 	modal = QMessageBox()
