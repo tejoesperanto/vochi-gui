@@ -40,24 +40,58 @@ def run_election ():
 
 	results = None
 	try:
-		if current_election_type == 'RP':
-			results = RankedPairs(candidates, ballots, ignored_candidates)
-		elif current_election_type == 'STV':
-			results = STV(places, candidates, ballots, ignored_candidates)
-	except TieBreakerNeededException as e:
-		tie_breaker_text = 'La egalecrompanto mem enskribu sian balotilon ĉi-sube.\nEkz. A=B>C>D=E\nValidaj kandidatoj:\n%s' % (', '.join(candidates))
-		tie_breaker, ok = QInputDialog.getText(window, 'Necesas egalecrompanto!', tie_breaker_text)
-		if not ok:
-			return
-		if current_election_type == 'RP':
-			results = RankedPairs(candidates, ballots, ignored_candidates, tie_breaker)
-		elif current_election_type == 'STV':
-			results = STV(places, candidates, ballots, ignored_candidates, tie_breaker)
+		try:
+			if current_election_type == 'RP':
+				results = RankedPairs(candidates, ballots, ignored_candidates)
+			elif current_election_type == 'STV':
+				results = STV(places, candidates, ballots, ignored_candidates)
+		except TieBreakerNeededException as e:
+			tie_breaker_text = 'La egalecrompanto mem enskribu sian balotilon ĉi-sube.\nEkz. A=B>C>D=E\nValidaj kandidatoj:\n%s' % (', '.join(candidates))
+			tie_breaker, ok = QInputDialog.getText(window, 'Necesas egalecrompanto!', tie_breaker_text)
+			if not ok:
+				return
+			if current_election_type == 'RP':
+				results = RankedPairs(candidates, ballots, ignored_candidates, tie_breaker)
+			elif current_election_type == 'STV':
+				results = STV(places, candidates, ballots, ignored_candidates, tie_breaker)
+	except (InvalidTieBreakerException, InvalidBallotException, TooManyBlankBallotsException) as e:
+		error_modal = QMessageBox()
+
+		if (isinstance(e, InvalidTieBreakerException)):
+			error_title = 'Nevalida egalecrompa balotilo'
+			error_text = 'La egalecrompa balotilo ne estis valida.'
+			error_modal.setIcon(QMessageBox.Warning)
+		elif isinstance(e, InvalidBallotException):
+			error_title = 'Nevalida(j) balotilo(j)'
+			error_text = 'Unu aŭ pluraj el la enmetitaj balotiloj ne estis valida(j).'
+			error_modal.setIcon(QMessageBox.Warning)
+		else:
+			error_title = 'Tro da blankaj balotiloj'
+			error_text = 'Rezulto: Sindetene (%d balotiloj el entute %d estis blankaj)' % (e.blank_ballots, e.num_ballots)
+
+		error_modal.setWindowTitle(error_title)
+		error_modal.setText(error_text)
+		error_modal.exec_()
 
 	if not results:
 		return
 
-	print(results)
+	results_text = '%d balotiloj kalkulitaj, %d blankaj' % (results['ballots'], results['blank_ballots'])
+	if len(ignored_candidates):
+		results_text += '\nIgnorataj kandidatoj: %s' % (', '.join(ignored_candidates))
+
+	if current_election_type == 'RP' and len(results['disqualified_candidates']):
+		results_text += '\nNeelektitaj laŭ §2.6: %s' % (', '.join(results['disqualified_candidates']))
+
+	if current_election_type == 'RP':
+		results_text += '\n\nVenkinto: %s' % (results['winner'])
+	elif current_election_type == 'STV':
+		results_text += '\n\nVenkintoj (laŭ ordo de elektiĝo): %s' % (', '.join(results['winners']))
+
+	results_modal = QMessageBox()
+	results_modal.setWindowTitle('Rezulto trovita')
+	results_modal.setText(results_text)
+	results_modal.exec_()
 
 app = QApplication(['TEJO Voĉo'])
 window = QWidget()

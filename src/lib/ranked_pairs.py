@@ -66,6 +66,8 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 
 				for lesser_row in rows[y + 1:]:
 					for lesser_col in lesser_row:
+						if not lesser_col in candidates:
+							raise InvalidBallotException('Invalid candidate %s in ballot %s' % (cur_col, ballot))
 						if lesser_col == cur_col:
 							raise InvalidBallotException('Duplicate candidate %s in ballot %s' % (cur_col, ballot))
 						pair_name = ''.join(sorted(( cur_col, lesser_col )))
