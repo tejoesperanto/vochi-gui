@@ -118,7 +118,7 @@ menu = main_window.menuBar()
 menu_about = menu.addMenu('&Pri Voĉo')
 
 def display_about ():
-	with open(os.path.join(base_path, 'version.txt')) as f:
+	with open(os.path.join(base_path, 'version.txt'), encoding='utf8') as f:
 		version = f.read()
 
 	text  =   'TEJO Voĉo estas la eksterreta voĉdonsistemo de TEJO'
@@ -136,7 +136,7 @@ menu_about_about.triggered.connect(display_about)
 menu_about.addAction(menu_about_about)
 
 def display_help ():
-	with open(os.path.join(base_path, 'help.html')) as f:
+	with open(os.path.join(base_path, 'help.html'), encoding='utf8') as f:
 		help_text = f.read()
 
 	modal = QMessageBox()
