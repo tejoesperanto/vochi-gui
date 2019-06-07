@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
 
-from PyQt5.QtWidgets import (QApplication, QWidget, QVBoxLayout, QHBoxLayout,
-QLabel, QComboBox, QPushButton, QLineEdit, QSpinBox, QPlainTextEdit,
-QMessageBox, QInputDialog)
+from PyQt5.QtWidgets import (QApplication, QMainWindow, QWidget, QVBoxLayout,
+QHBoxLayout, QLabel, QComboBox, QPushButton, QLineEdit, QSpinBox,
+QPlainTextEdit, QMessageBox, QInputDialog, QAction)
 from PyQt5 import QtCore
 from collections import OrderedDict
 import re
+import os.path
 
 from lib.ranked_pairs import RankedPairs
 from lib.stv import STV
 from lib.exceptions import InvalidTieBreakerException, InvalidBallotException, TooManyBlankBallotsException, TieBreakerNeededException
+
+own_dir = os.path.abspath(os.path.dirname(__file__))
 
 current_election_type = None
 election_types = OrderedDict(sorted({ 'RP': 'Paroranga metodo', 'STV': 'Unuopa Transdonebla Voĉo' }.items(), key=lambda x: x[0]))
@@ -103,7 +106,44 @@ def run_election ():
 	results_modal.exec_()
 
 app = QApplication(['TEJO Voĉo'])
+main_window = QMainWindow()
 window = QWidget()
+main_window.setCentralWidget(window)
+
+menu = main_window.menuBar()
+menu_about = menu.addMenu('&Pri Voĉo')
+
+def display_about ():
+	with open(os.path.join(own_dir, '../version.txt')) as f:
+		version = f.read()
+
+	text  =   'TEJO Voĉo estas la eksterreta voĉdonsistemo de TEJO'
+	text += '\nVersio: G-%s\n' % (version)
+	text += '\n© Mia Nordentoft 2019, MIT-permesilo'
+
+	modal = QMessageBox()
+	modal.setWindowTitle('Pri Voĉo')
+	modal.setText(text)
+	modal.exec_()
+
+menu_about_about = QAction('&Pri Voĉo')
+menu_about_about.setShortcut('F2')
+menu_about_about.triggered.connect(display_about)
+menu_about.addAction(menu_about_about)
+
+def display_help ():
+	with open(os.path.join(own_dir, '../help.html')) as f:
+		help_text = f.read()
+
+	modal = QMessageBox()
+	modal.setWindowTitle('Voĉo-helpo')
+	modal.setText(help_text)
+	modal.exec_()
+
+menu_about_help = QAction('&Helpo')
+menu_about_help.setShortcut('F1')
+menu_about_help.triggered.connect(display_help)
+menu_about.addAction(menu_about_help)
 
 form = QVBoxLayout()
 window.setLayout(form)
@@ -179,7 +219,7 @@ ballots_input.setMinimumSize(400, 500)
 
 reset_form()
 
-window.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
-window.show()
-window.setFixedSize(window.size())
+main_window.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
+main_window.show()
+main_window.setFixedSize(main_window.size())
 app.exec_()
