@@ -1,8 +1,30 @@
-from lib.graph import Graph
 from lib.exceptions import InvalidTieBreakerException, InvalidBallotException, TooManyBlankBallotsException, TieBreakerNeededException
 from lib.util import debug
 
 # Ported from https://github.com/tejoesperanto/vocho-lib/blob/master/src/ranked-pairs.js
+def is_cyclic (graph):
+	nodes = list(graph.keys())
+	visited = {}
+	rec_stack = {}
+
+	def _is_cyclic (node, visited, rec_stack):
+		if not node in visited or not visited[node]:
+			visited[node] = True
+			rec_stack[node] = True
+			node_neighbors = graph[node]
+			for current_node in node_neighbors:
+				if ((not current_node in visited or not visited[current_node]) and _is_cyclic(current_node, visited, rec_stack) or
+					current_node in rec_stack and rec_stack[current_node]):
+					return True
+		rec_stack[node] = False
+		return False
+
+	for node in nodes:
+		if _is_cyclic(node, visited, rec_stack):
+			return True
+
+	return False
+
 def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = None):
 	candidates = list(candidates)
 
@@ -259,22 +281,26 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 	debug(ordered_entries)
 
 	# Make a graph of the winning pairs
-	lock = Graph(len(candidates))
+	lock = {}
+	for cand in candidates:
+		lock[cand] = []
+	lock_entries = []
 	debug('\nLock:')
 	for entry in ordered_entries:
 		pair = entry[1]
 
-		new_lock = lock.clone()
-		new_lock.addEdge(pair['winner'], pair['loser'])
-		if new_lock.isCyclic():
+		new_lock = dict(lock)
+		new_lock[pair['winner']].append(pair['loser'])
+		if is_cyclic(new_lock):
 			continue
 		lock = new_lock
+		lock_entries.append((pair['winner'], pair['loser']))
 
 		debug('%s → %s' % (pair['winner'], pair['loser']))
 
 	# Find the candidate at the root of graph (with nothing pointing to it)
 	possible_winners = list(candidates)
-	cands_pointed_to = set(item for sublist in lock.graph.values() for item in sublist)
+	cands_pointed_to = set(item for sublist in lock.values() for item in sublist)
 	for cand in cands_pointed_to:
 		possible_winners.remove(cand)
 	winner = possible_winners[0]
@@ -285,5 +311,9 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		'ballots': len(ballots),
 		'blank_ballots': blank_ballots,
 		'winner': winner,
-		'disqualified_candidates': disqualified_candidates
+		'disqualified_candidates': disqualified_candidates,
+		'comp_pairs': pairs,
+		'ranked_pairs': ordered_entries,
+		'lock': lock_entries,
+		'graph': lock
 	}

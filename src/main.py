@@ -101,8 +101,14 @@ def run_election ():
 	if len(ignored_candidates):
 		results_text += '\nIgnorataj kandidatoj: %s' % (', '.join(ignored_candidates))
 
-	if current_election_type == 'RP' and len(results['disqualified_candidates']):
-		results_text += '\nNeelektitaj laŭ §2.6: %s' % (', '.join(results['disqualified_candidates']))
+	if current_election_type == 'RP':
+		if len(results['disqualified_candidates']):
+			results_text += '\nNeelektitaj laŭ §2.6: %s' % (', '.join(results['disqualified_candidates']))
+		results_text += '<table border="1"><tr>'
+		for th in ('Paro', 'Gajnanto'):
+			results_text += '<th>%s</th>' % (th)
+		results_text += '</tr>'
+		results_text += '</table>'
 
 	if current_election_type == 'RP':
 		results_text += '\n\nVenkinto: %s' % (results['winner'])
