@@ -125,10 +125,23 @@ def run_election ():
 
 		results_text += '</table></p>'
 
+		results_text += '<p>Grafeo: <table border="1"><tr>'
+
+		for th in ('De', 'Al'):
+			results_text += '<th>%s</th>' % (th)
+
+		results_text += '</tr>'
+
+		for lock_from, lock_to in results['graph'].items():
+			results_text += '<tr><td>%s</td><td>%s</td></tr>' % (lock_from, ', '.join(lock_to))
+
+		results_text += '</table></p>'
+
+
 	if current_election_type == 'RP':
-		results_text += '<p>Venkinto: %s</p>' % (results['winner'])
+		results_text += '<br><p>Venkinto: %s</p>' % (results['winner'])
 	elif current_election_type == 'STV':
-		results_text += '<p>Venkintoj (laŭ ordo de elektiĝo): %s</p>' % (', '.join(results['winners']))
+		results_text += '<br><p>Venkintoj (laŭ ordo de elektiĝo): %s</p>' % (', '.join(results['winners']))
 
 	results_modal = QMessageBox()
 	results_modal.setWindowTitle('Rezulto trovita')
