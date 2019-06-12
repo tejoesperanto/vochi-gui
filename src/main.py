@@ -35,6 +35,7 @@ def reset_form ():
 
 comma_regex = r'[^,\s]'
 newline_regex = r'\r?\n'
+space_regex = r'\s'
 def run_election ():
 	candidates = re.findall(comma_regex, candidates_input.text())
 	ignored_candidates = re.findall(comma_regex, ignored_candidates_input.text())
@@ -42,7 +43,7 @@ def run_election ():
 
 	raw_ballots = ballots_input.toPlainText();
 	ballots = re.split(newline_regex, raw_ballots.strip())
-	ballots = map(lambda b: b.strip(), ballots)
+	ballots = map(lambda b: re.sub(space_regex, '', b), ballots)
 	ballots = filter(lambda b: len(b), ballots)
 	ballots = list(map(lambda b: '' if b == 'blanka' else b, ballots))
 
