@@ -58,7 +58,12 @@ def run_election ():
 			elif current_election_type == 'STV':
 				results = STV(places, candidates, ballots, ignored_candidates)
 		except TieBreakerNeededException as e:
-			tie_breaker_text = 'La egalecrompanto mem enskribu sian balotilon ĉi-sube.\nEkz. A=B>C>D=E\nValidaj kandidatoj:\n%s' % (', '.join(candidates))
+			tie_breaker_text  = 'La egalecrompanto mem enskribu sian balotilon ĉi-sube.'
+			if current_election_type == 'RP':
+				tie_breaker_text += '\nEkz. A>B>D>C'
+			elif current_election_type == 'STV':
+				tie_breaker_text += '\nEkz. ABDC'
+			tie_breaker_text += '\nValidaj kandidatoj:\n%s' % (', '.join(candidates))
 			tie_breaker, ok = QInputDialog.getText(window, 'Necesas egalecrompanto!', tie_breaker_text)
 
 			if not ok:
