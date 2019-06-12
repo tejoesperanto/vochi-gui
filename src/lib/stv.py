@@ -244,5 +244,6 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		'ballots': len(ballots),
 		'blank_ballots': blank_ballots,
 		'winners': elected_candidates,
-		'rounds': rounds_stats
+		'rounds': rounds_stats,
+		'quota': quota
 	}

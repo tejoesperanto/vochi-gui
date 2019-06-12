@@ -137,6 +137,8 @@ def run_election ():
 
 		results_text += '</table></p>'
 	elif current_election_type == 'STV':
+		results_text += 'Elektiĝkvoto: %.3f' % (results['quota'])
+
 		for i, round_stats in enumerate(results['rounds']):
 			results_text += '<p><b>Vico %d</b><br>' % (i + 1)
 			if len(round_stats['elected']):
