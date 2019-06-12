@@ -56,7 +56,7 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 	debug('There are %d places and %d candidates' % (places, len(candidates)))
 	debug('Election quota: %.3f' % (quota))
 
-	elected_candidates = []
+	elected_candidates = set()
 
 	# Determine the amount of votes each candidate has based on everyone's first preference
 	candidate_votes = {}
@@ -69,10 +69,16 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		except IndexError:
 			pass
 
+	rounds_stats = []
 	stv_round = 0
 	while len(elected_candidates) < places:
 		debug('\nRound %d' % (stv_round + 1))
 		stv_round += 1
+		round_stat = {
+			'elected': set(),
+			'eliminated': None
+		}
+		rounds_stats.append(round_stat)
 
 		debug('Valid candidates: %s' % (', '.join(candidates)))
 
@@ -84,7 +90,8 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 			if votes > quota:
 				exceeds_quota.append(cand)
 		debug(', '.join(votes_debug))
-		elected_candidates.extend(exceeds_quota)
+		elected_candidates.update(exceeds_quota)
+		round_stat['elected'].update(exceeds_quota)
 
 		debug('Ballots:')
 		debug(weighted_ballots)
@@ -92,7 +99,8 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		# §3.7: Check if the amount of remaining candidates is equal to the amount of remaining places, and if so elect all remaining candidates
 		if places - len(elected_candidates) == len(candidates):
 			# Elect all remaining candidates
-			elected_candidates.extend(candidates)
+			elected_candidates.update(candidates)
+			round_stat['elected'].update(candidates)
 			debug('Elected all remaining candidates: %s' % (', '.join(candidates)))
 
 		if len(exceeds_quota):
@@ -197,7 +205,7 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 					if not tie_breaker:
 						raise TieBreakerNeededException()
 					# The least preferred candidate according to the tie breaker is eliminated
-					preferenceIndices = list(map(lambda cand: { 'cand': cand, index: tie_breaker.index(cand) },min_votes_cands))
+					preferenceIndices = list(map(lambda cand: { 'cand': cand, 'index': tie_breaker.index(cand) },min_votes_cands))
 					eliminated_cand = reduce(lambda a, b: a if a['index'] > b['index'] else b, preferenceIndices)['cand']
 
 			# Transfer the votes of the eliminated candidate
@@ -219,6 +227,7 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 			# Remove eliminated candidates from the list of candidates
 			candidates.remove(eliminated_cand)
 			del candidate_votes[eliminated_cand]
+			round_stat['eliminated'] = eliminated_cand
 
 			# Remove all mentions of the candidate from the ballots
 			for ballot in weighted_ballots:
@@ -234,5 +243,6 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 	return {
 		'ballots': len(ballots),
 		'blank_ballots': blank_ballots,
-		'winners': elected_candidates
+		'winners': elected_candidates,
+		'rounds': rounds_stats
 	}
