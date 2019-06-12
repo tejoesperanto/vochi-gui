@@ -2,6 +2,7 @@ from lib.exceptions import InvalidTieBreakerException, InvalidBallotException, T
 from lib.util import debug
 
 # Ported from https://github.com/tejoesperanto/vocho-lib/blob/master/src/ranked-pairs.js
+# https://hackernoon.com/the-javascript-developers-guide-to-graphs-and-detecting-cycles-in-them-96f4f619d563
 def is_cyclic (graph):
 	nodes = list(graph.keys())
 	visited = {}
@@ -27,6 +28,7 @@ def is_cyclic (graph):
 
 def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = None):
 	candidates = list(candidates)
+	candidates.sort()
 
 	tie_breaker_list = []
 	if tie_breaker:
@@ -289,11 +291,10 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 	for entry in ordered_entries:
 		pair = entry[1]
 
-		new_lock = dict(lock)
-		new_lock[pair['winner']].append(pair['loser'])
-		if is_cyclic(new_lock):
+		lock[pair['winner']].append(pair['loser'])
+		if is_cyclic(lock):
+			lock[pair['winner']].remove(pair['loser'])
 			continue
-		lock = new_lock
 		lock_entries.append((pair['winner'], pair['loser']))
 
 		debug('%s → %s' % (pair['winner'], pair['loser']))
@@ -314,6 +315,7 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		'disqualified_candidates': disqualified_candidates,
 		'comp_pairs': pairs,
 		'ranked_pairs': ordered_entries,
+		'cand_stats': cand_stats,
 		'lock': lock_entries,
 		'graph': lock
 	}

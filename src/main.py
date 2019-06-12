@@ -97,26 +97,42 @@ def run_election ():
 	if not results:
 		return
 
-	results_text = '%d balotiloj kalkulitaj, %d blankaj' % (results['ballots'], results['blank_ballots'])
+	results_text = '<p>%d balotiloj kalkulitaj, %d blankaj</p>' % (results['ballots'], results['blank_ballots'])
 	if len(ignored_candidates):
-		results_text += '\nIgnorataj kandidatoj: %s' % (', '.join(ignored_candidates))
+		results_text += '<p>Ignorataj kandidatoj: %s</p>' % (', '.join(ignored_candidates))
 
 	if current_election_type == 'RP':
 		if len(results['disqualified_candidates']):
-			results_text += '\nNeelektitaj laŭ §2.6: %s' % (', '.join(results['disqualified_candidates']))
-		results_text += '<table border="1"><tr>'
-		for th in ('Paro', 'Gajnanto'):
+			results_text += '<p>Neelektitaj laŭ §2.6: %s</p>' % (', '.join(results['disqualified_candidates']))
+		results_text += '<p>Komparitaj paroj: <table border="1"><tr>'
+
+		for th in ('Paro', 'Gajnanto', 'Diferenco'):
 			results_text += '<th>%s</th>' % (th)
 		results_text += '</tr>'
-		results_text += '</table>'
+
+		for pair_name, pair in results['ranked_pairs']:
+			cand1 = pair_name[0]
+			cand2 = pair_name[1]
+
+			results_text += '<tr><td>%(cand1)s (%(cand1_wins)d) kontraŭ %(cand2)s (%(cand2_wins)d)</td><td>%(winner)s</td><td>%(diff)d</td></tr>' % {
+				'cand1': cand1,
+				'cand2': cand2,
+				'cand1_wins': pair[cand1],
+				'cand2_wins': pair[cand2],
+				'winner': pair['winner'],
+				'diff': abs(pair['diff'])
+			}
+
+		results_text += '</table></p>'
 
 	if current_election_type == 'RP':
-		results_text += '\n\nVenkinto: %s' % (results['winner'])
+		results_text += '<p>Venkinto: %s</p>' % (results['winner'])
 	elif current_election_type == 'STV':
-		results_text += '\n\nVenkintoj (laŭ ordo de elektiĝo): %s' % (', '.join(results['winners']))
+		results_text += '<p>Venkintoj (laŭ ordo de elektiĝo): %s</p>' % (', '.join(results['winners']))
 
 	results_modal = QMessageBox()
 	results_modal.setWindowTitle('Rezulto trovita')
+	results_modal.setTextFormat(QtCore.Qt.RichText)
 	results_modal.setText(results_text)
 	results_modal.buttonClicked.connect(unhide_ballots)
 	results_modal.exec_()
