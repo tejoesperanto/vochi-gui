@@ -269,7 +269,7 @@ form_options_line5.addWidget(ballots_label)
 
 ballots_input = QPlainTextEdit()
 form_options_line5.addWidget(ballots_input)
-ballots_input.setMinimumSize(400, 500)
+ballots_input.setMinimumSize(400, 300)
 
 reset_form()
 
