@@ -136,20 +136,33 @@ def run_election ():
 			results_text += '<tr><td>%s</td><td>%s</td></tr>' % (lock_from, ', '.join(lock_to))
 
 		results_text += '</table></p>'
-	elif current_election_type == 'STV':
-		results_text += 'Elektiĝkvoto: %.3f' % (results['quota'])
 
-		for i, round_stats in enumerate(results['rounds']):
-			results_text += '<p><b>Vico %d</b><br>' % (i + 1)
-			if len(round_stats['elected']):
-				results_text += 'Elektitaj: %s' % (', '.join(round_stats['elected']))
-			elif round_stats['eliminated']:
-				results_text += 'Malelektita: %s' % (round_stats['eliminated'])
-			results_text += '</p>'
-
-	if current_election_type == 'RP':
 		results_text += '<br><p>Venkinto: %s</p>' % (results['winner'])
+
 	elif current_election_type == 'STV':
+		results_text += '<p>Elektiĝkvoto: %.3f</p>' % (results['quota'])
+
+		results_text += '<table border="1"><tr><th>Voĉdoneblo</th>'
+		for i in range(len(results['rounds'])):
+			results_text += '<th>%d-a vico</th>' % (i + 1)
+		results_text += '</tr>'
+		for cand in candidates:
+			results_text += '<tr><td>%s</td>' % (cand)
+			for i, stv_round in enumerate(results['rounds']):
+				if not cand in stv_round['votes']:
+					break
+				votes = stv_round['votes'][cand]
+				results_text += '<td>'
+				if cand in stv_round['elected']:
+					results_text += '<b>%.3f</b>' % (votes)
+				elif cand == stv_round['eliminated']:
+					results_text += '<s>%.3f</s>' % (votes)
+				else:
+					results_text += '%.3f' % (votes)
+				results_text += '</td>'
+			results_text += '</tr>'
+		results_text += '</table>'
+
 		results_text += '<br><p>Venkintoj (laŭ ordo de elektiĝo):<br>%s</p>' % (', '.join(results['winners']))
 
 	results_modal = QMessageBox()

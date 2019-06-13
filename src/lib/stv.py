@@ -56,7 +56,7 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 	debug('There are %d places and %d candidates' % (places, len(candidates)))
 	debug('Election quota: %.3f' % (quota))
 
-	elected_candidates = set()
+	elected_candidates = []
 
 	# Determine the amount of votes each candidate has based on everyone's first preference
 	candidate_votes = {}
@@ -76,7 +76,8 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		stv_round += 1
 		round_stat = {
 			'elected': set(),
-			'eliminated': None
+			'eliminated': None,
+			'votes': {}
 		}
 		rounds_stats.append(round_stat)
 
@@ -86,11 +87,14 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		exceeds_quota = []
 		debug('Votes for each candidate:')
 		for cand, votes in candidate_votes.items():
+			round_stat['votes'][cand] = votes;
 			votes_debug.append('%s: %s' % (cand, votes))
 			if votes > quota:
 				exceeds_quota.append(cand)
 		debug(', '.join(votes_debug))
-		elected_candidates.update(exceeds_quota)
+		for cand in exceeds_quota:
+			if cand not in elected_candidates:
+				elected_candidates.append(cand)
 		round_stat['elected'].update(exceeds_quota)
 
 		debug('Ballots:')
@@ -99,7 +103,9 @@ def STV (places, candidates, ballots, ignored_candidates = [], tie_breaker = Non
 		# §3.7: Check if the amount of remaining candidates is equal to the amount of remaining places, and if so elect all remaining candidates
 		if places - len(elected_candidates) == len(candidates):
 			# Elect all remaining candidates
-			elected_candidates.update(candidates)
+			for cand in candidates:
+				if cand not in elected_candidates:
+					elected_candidates.append(cand)
 			round_stat['elected'].update(candidates)
 			debug('Elected all remaining candidates: %s' % (', '.join(candidates)))
 
