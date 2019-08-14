@@ -27,7 +27,6 @@ def change_election_type (index):
 	places_input.setReadOnly(current_election_type != 'STV')
 
 def reset_form ():
-	change_election_type(0)
 	candidates_input.setText('')
 	ignored_candidates_input.setText('')
 	places_input.setValue(1)
