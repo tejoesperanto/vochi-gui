@@ -283,6 +283,7 @@ ballots_input = QPlainTextEdit()
 form_options_line5.addWidget(ballots_input)
 ballots_input.setMinimumSize(400, 300)
 
+change_election_type(0)
 reset_form()
 
 main_window.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.MSWindowsFixedSizeDialogHint)
