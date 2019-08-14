@@ -88,6 +88,12 @@ def RankedPairs (candidates, ballots, ignored_candidates = [], tie_breaker = Non
 				already_mentioned.append(cur_col)
 				cand_stats[cur_col]['mentions'] += 1
 
+		# Consider candidates not mentioned as lesser than those mentioned
+		rows.append(list(set(candidates) - set(already_mentioned)))
+		print(rows)
+
+		for y, cur_row in enumerate(rows):
+			for cur_col in cur_row:
 				for lesser_row in rows[y + 1:]:
 					for lesser_col in lesser_row:
 						if not lesser_col in candidates:
