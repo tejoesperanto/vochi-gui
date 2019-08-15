@@ -102,7 +102,11 @@ def run_election ():
 
 	if current_election_type == 'RP':
 		if len(results['disqualified_candidates']):
-			results_text += '<p>Neelektitaj laŭ §2.6: %s</p>' % (', '.join(results['disqualified_candidates']))
+			results_text += '<p>Neelektitaj laŭ §2.6: '
+			disc_cands = list(map(lambda c: '%s (%d mencioj)' % (c, results['cand_stats'][c]['mentions']), results['disqualified_candidates']))
+			results_text += ', '.join(disc_cands)
+			results_text += '</p>'
+		
 		results_text += '<p>Komparitaj paroj: <table border="1"><tr>'
 
 		for th in ('Paro', 'Gajnanto', 'Diferenco'):
